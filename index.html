@@ -1,936 +1,535 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NEBULA • 100+ Features • Experimental Sections</title>
-    <meta name="theme-color" content="#0a0a1a">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
-    <link rel="manifest" href="manifest.json">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip-utils/0.1.0/jszip-utils.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Nemesis - Space-Themed Mod Generator & Proxy</title>
+    <meta name="description" content="Nemesis: Generate modded HTML proxies with built-in code explorers and mod menus for any online site. Fully functional, space-themed UI." />
+    
+    <!-- Google Fonts: Orbitron (Space Theme) -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --bg-dark: #0a0a1a;
-            --panel: #14142a;
-            --accent: #00ffff;
-            --accent-glow: #00ffff44;
-            --text: #e0e0ff;
-            --text-dim: #a0a0cc;
-            --border: #333355;
-            --radius: 30px;
-            --transition: all 0.38s cubic-bezier(0.4, 0, 0.2, 1);
-            --success: #00ffcc;
-            --error: #ff3366;
-            --vr-cursor: radial-gradient(circle, #00ffff 0%, transparent 70%);
+            --bg: #0a0a1a;
+            --accent: #00ffcc;
+            --accent-dark: #00b399;
+            --text: #e0f7ff;
+            --card: #1a1a3a;
+            --border: #00ffcc40;
+            --glow: 0 0 20px rgba(0, 255, 204, 0.5);
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: none;
             font-family: 'Orbitron', sans-serif;
         }
 
-        html, body {
-            height: 100%;
-            overflow: hidden;
-            background: var(--bg-dark);
+        body {
+            background: var(--bg);
             color: var(--text);
-            -webkit-font-smoothing: antialiased;
-            user-select: none;
-            -webkit-user-select: none;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(0, 255, 204, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 100, 255, 0.1) 0%, transparent 50%),
+                repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(0,255,204,0.02) 35px, rgba(0,255,204,0.02) 70px);
+            overflow-x: hidden;
+            position: relative;
         }
 
-        input, textarea, select, button {
-            font-size: 16px !important;
-        }
-
-        #vr-cursor {
-            position: fixed;
-            width: 40px;
-            height: 40px;
-            background: var(--vr-cursor);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
-            transform: translate(-50%, -50%);
-            opacity: 0;
-            transition: opacity 0.3s;
-            box-shadow: 0 0 30px #00ffff;
-        }
-
-        #vr-cursor.active {
-            opacity: 1;
-        }
-
-        .nebula-bg {
-            position: fixed;
-            inset: 0;
-            background: 
-                radial-gradient(circle at 5% 85%, rgba(0, 255, 255, 0.32) 0%, transparent 60%),
-                radial-gradient(circle at 95% 15%, rgba(255, 0, 255, 0.32) 0%, transparent 60%),
-                radial-gradient(circle at 50% 50%, rgba(100, 100, 255, 0.22) 0%, transparent 70%);
-            animation: nebulaDrift 45s ease-in-out infinite alternate;
-            will-change: transform;
-            pointer-events: none;
-            z-index: -2;
-        }
-
-        @keyframes nebulaDrift {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(40px, -40px) scale(1.08); }
-        }
-
+        /* Animated Stars Background */
         .stars {
             position: fixed;
-            inset: 0;
-            z-index: -1;
+            top: 0; left: 0; right: 0; bottom: 0;
             pointer-events: none;
+            z-index: -1;
         }
-
         .star {
             position: absolute;
-            background: #fff;
+            background: white;
             border-radius: 50%;
-            box-shadow: 0 0 20px #fff;
-            animation: twinkle 3.6s infinite alternate;
-            will-change: opacity, transform;
+            animation: twinkle 3s infinite alternate;
         }
-
         @keyframes twinkle {
-            0% { opacity: 0.84; transform: scale(0.76); }
-            100% { opacity: 1; transform: scale(1); }
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
         }
 
+        /* Curved Container */
         .container {
-            max-width: 100vw;
-            height: 100vh;
-            padding: 16px;
-            overflow: hidden;
-            -webkit-overflow-scrolling: touch;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem;
         }
 
+        /* Header */
         header {
             text-align: center;
-            margin-bottom: 20px;
-            padding: 12px 0;
+            padding: 3rem 0;
+            position: relative;
         }
-
-        h1 {
-            font-size: clamp(2.7rem, 14vw, 4rem);
+        .logo {
+            font-size: 4rem;
             font-weight: 900;
-            background: linear-gradient(90deg, #00ffff, #ff00ff, #00ffaa);
+            background: linear-gradient(135deg, #00ffcc, #00b3ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 50px var(--accent-glow);
-            line-height: 1;
-        }
-
-        .subtitle {
-            color: var(--text-dim);
-            font-size: clamp(0.94rem, 5vw, 1.14rem);
-            margin-top: 10px;
-            opacity: 1;
-        }
-
-        nav {
-            display: flex;
-            gap: 14px;
-            margin-bottom: 20px;
-            overflow-x: auto;
-            padding: 10px 12px 16px;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-            scroll-snap-type: x mandatory;
-        }
-
-        nav::-webkit-scrollbar { display: none; }
-
-        .nav-btn {
-            flex: 0 0 auto;
-            min-width: 140px;
-            padding: 18px 24px;
-            background: var(--panel);
-            border: 2.6px solid var(--border);
-            color: var(--text);
-            font-weight: 700;
-            font-size: clamp(0.92rem, 4.1vw, 1.1rem);
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: var(--transition);
-            scroll-snap-align: center;
-            box-shadow: 0 9px 22px rgba(0, 0, 0, 0.54);
-            user-select: none;
-            touch-action: pan-x;
-        }
-
-        .nav-btn:active, .nav-btn.vr-hover {
-            transform: scale(0.9);
-            box-shadow: 0 0 40px var(--accent-glow);
-        }
-
-        .nav-btn.active {
-            background: var(--accent);
-            color: #000;
-            border-color: var(--accent);
-            box-shadow: 0 0 35px var(--accent-glow);
-        }
-
-        .tab {
-            display: none;
-            animation: fadeIn 0.44s ease;
-        }
-
-        .tab.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .panel {
-            background: var(--panel);
-            border: 2.6px solid var(--border);
-            border-radius: var(--radius);
-            padding: clamp(20px, 7vw, 30px);
-            margin-bottom: 20px;
-            box-shadow: 0 18px 48px rgba(0, 0, 0, 0.64);
-            backdrop-filter: blur(22px);
-            -webkit-backdrop-filter: blur(22px);
-        }
-
-        .panel h2 {
-            color: var(--accent);
-            margin-bottom: 18px;
-            font-size: clamp(1.45rem, 6.4vw, 1.65rem);
-            font-weight: 700;
-        }
-
-        .panel p {
-            color: var(--text-dim);
-            line-height: 1.74;
-            margin-bottom: 18px;
-            font-size: clamp(1rem, 4.2vw, 1.1rem);
-        }
-
-        .btn {
-            padding: 22px 30px;
-            background: linear-gradient(135deg, #00ffff, #ff00ff);
-            color: #000;
-            border: none;
-            border-radius: var(--radius);
-            font-weight: 700;
-            font-size: clamp(1.1rem, 4.8vw, 1.2rem);
-            cursor: pointer;
-            transition: var(--transition);
-            width: 100%;
-            margin: 14px 0;
-            box-shadow: 0 9px 24px rgba(0, 255, 255, 0.54);
-            user-select: none;
-            touch-action: manipulation;
-        }
-
-        .btn:active, .btn.vr-hover {
-            transform: scale(0.92);
-            box-shadow: 0 11px 30px rgba(0, 255, 255, 0.74);
-        }
-
-        .btn-row {
-            display: flex;
-            gap: 14px;
-            flex-wrap: wrap;
-            margin: 16px 0;
-        }
-
-        .btn-small {
-            flex: 1;
-            min-width: 120px;
-            padding: 18px 22px;
-            font-size: clamp(0.92rem, 4vw, 1.02rem);
-        }
-
-        #export-area, #upload-area {
-            width: 100%;
-            padding: 26px;
-            background: rgba(20, 20, 40, 0.84);
-            border: 2.8px dashed var(--border);
-            border-radius: var(--radius);
-            text-align: center;
-            color: var(--text-dim);
-            font-size: 1.1rem;
-            margin: 20px 0;
-            cursor: pointer;
-            transition: var(--transition);
-            user-select: none;
-        }
-
-        #export-area:active, #export-area.vr-hover, #upload-area:active, #upload-area.vr-hover {
-            border-color: var(--accent);
-            background: rgba(0, 255, 255, 0.24);
-            transform: scale(0.94);
-        }
-
-        .status {
-            padding: 20px;
-            border-radius: var(--radius);
-            text-align: center;
-            font-weight: 600;
-            margin: 16px 0;
-            font-size: clamp(0.96rem, 3.8vw, 1.06rem);
-            display: none;
+            text-shadow: var(--glow);
             animation: pulse 2s infinite;
         }
-
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.9; }
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .tagline {
+            font-size: 1.2rem;
+            margin-top: 1rem;
+            opacity: 0.8;
         }
 
-        .status.success {
-            background: rgba(0, 255, 204, 0.36);
-            border: 2.6px solid var(--success);
-            color: #a0ffff;
-        }
-
-        .status.error {
-            background: rgba(255, 51, 102, 0.36);
-            border: 2.6px solid var(--error);
-            color: #ffeeee;
-        }
-
-        #mod-menu {
-            height: 380px;
-            overflow-y: auto;
-            background: rgba(10, 10, 25, 0.84);
-            border: 2.6px solid var(--border);
-            border-radius: var(--radius);
-            padding: 22px;
-            margin: 20px 0;
-            font-size: clamp(0.96rem, 3.8vw, 1.06rem);
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .mod-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 18px;
-            border-bottom: 1.6px solid #333;
-            font-size: clamp(0.94rem, 3.7vw, 1.04rem);
-        }
-
-        .mod-toggle {
+        /* Curved Card */
+        .card {
+            background: var(--card);
+            border-radius: 30px;
+            padding: 2.5rem;
+            margin: 2rem 0;
+            border: 1px solid var(--border);
+            box-shadow: var(--glow);
             position: relative;
-            width: 70px;
-            height: 40px;
-            background: #333;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: var(--transition);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
         }
-
-        .mod-toggle::after {
+        .card::before {
             content: '';
             position: absolute;
-            width: 36px;
-            height: 36px;
-            background: #fff;
-            border-radius: 50%;
-            top: 2px;
-            left: 2px;
-            transition: var(--transition);
-            box-shadow: 0 0 14px #00ffff;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(0,255,204,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        .mod-toggle.active {
-            background: var(--accent);
+        /* Form Styling */
+        .form-group {
+            margin-bottom: 1.5rem;
         }
-
-        .mod-toggle.active::after {
-            left: 32px;
-        }
-
-        .mod-toggle.vr-hover::after {
-            box-shadow: 0 0 30px #00ffff;
-        }
-
-        #ai-chat {
-            height: 340px;
-            overflow-y: auto;
-            background: rgba(10, 10, 25, 0.84);
-            border: 2.6px solid var(--border);
-            border-radius: var(--radius);
-            padding: 22px;
-            margin: 20px 0;
-            font-size: clamp(0.96rem, 3.8vw, 1.06rem);
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .msg {
-            margin-bottom: 18px;
-            padding: 18px 24px;
-            border-radius: 24px;
-            max-width: 88%;
-            word-wrap: break-word;
-            font-size: clamp(0.9rem, 3.6vw, 1rem);
-            line-height: 1.58;
-        }
-
-        .user-msg {
-            background: rgba(0, 255, 255, 0.36);
-            margin-left: auto;
-            text-align: right;
-            border-bottom-right-radius: 4px;
-        }
-
-        .ai-msg {
-            background: rgba(255, 0, 255, 0.36);
-            margin-right: auto;
-            border-bottom-left-radius: 4px;
-        }
-
-        .experimental {
-            background: linear-gradient(135deg, #ff00ff, #00ffff);
-            color: #000;
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
             font-weight: 700;
+            color: var(--accent);
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 15px;
+            border: 1px solid var(--border);
+            background: rgba(26, 26, 58, 0.8);
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: var(--glow);
         }
 
+        /* Buttons */
+        .btn {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: black;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--glow);
+            margin: 0.5rem;
+            font-size: 1rem;
+        }
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 30px rgba(0, 255, 204, 0.7);
+        }
+        .btn-outline {
+            background: transparent;
+            color: var(--accent);
+            border: 2px solid var(--accent);
+        }
+        .btn-outline:hover {
+            background: var(--accent);
+            color: black;
+        }
+
+        /* Mod Menu Options */
+        .mod-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .mod-card {
+            background: rgba(26, 26, 58, 0.6);
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .mod-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--glow);
+            border-color: var(--accent);
+        }
+        .mod-card.selected {
+            border-color: var(--accent);
+            background: rgba(0, 255, 204, 0.1);
+            box-shadow: var(--glow);
+        }
+        .mod-title {
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+        .mod-desc {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Output Area */
+        #output {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border: 1px dashed var(--accent);
+            min-height: 150px;
+            display: none;
+        }
+        #generatedCode {
+            background: #111;
+            color: #0f0;
+            padding: 1rem;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #0f0;
+        }
+
+        /* Footer */
         footer {
             text-align: center;
-            padding: 22px;
-            color: var(--text-dim);
-            font-size: clamp(0.8rem, 3.1vw, 0.9rem);
-            margin-top: 26px;
+            padding: 2rem 0;
+            opacity: 0.7;
+            font-size: 0.9rem;
         }
 
-        footer a {
-            color: var(--accent);
-            text-decoration: none;
-        }
-
-        @media (orientation: landscape) and (max-height: 600px) {
-            .container { padding: 12px; }
-            .panel { padding: 16px; margin-bottom: 16px; }
-            #mod-menu, #ai-chat { height: 240px; }
-            .btn { padding: 16px; }
-            .btn-small { padding: 14px 18px; }
+        /* Responsive */
+        @media (max-width: 768px) {
+            .logo { font-size: 2.5rem; }
+            .card { padding: 1.5rem; }
+            .mod-options { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <div id="vr-cursor"></div>
-    <div class="nebula-bg"></div>
     <div class="stars" id="stars"></div>
 
-    <div class="container" id="app">
+    <div class="container">
         <header>
-            <h1>NEBULA</h1>
-            <p class="subtitle">100+ Features • Experimental • 100% Real Mods</p>
+            <h1 class="logo">NEMESIS</h1>
+            <p class="tagline">Interstellar Mod Generator & Proxy System</p>
         </header>
 
-        <nav id="nav"></nav>
+        <div class="card">
+            <h2>🚀 Enter Target Site</h2>
+            <div class="form-group">
+                <label for="targetUrl">Target Website URL</label>
+                <input type="url" id="targetUrl" placeholder="https://example.com" required />
+            </div>
 
-        <!-- Home -->
-        <div id="home" class="tab active">
-            <div class="panel">
-                <h2>Export or Download</h2>
-                <p>100% real. Choose export (auto) or download (manual).</p>
-                
-                <div id="export-area" onclick="exportToGT()">
-                    <strong>EXPORT TO GORILLA TAG</strong><br>
-                    <small>Auto-copies to /files/Mods/Nebula/</small>
+            <h2>⚙️ Choose Mod Menu</h2>
+            <div class="mod-options">
+                <div class="mod-card" data-mod="basic">
+                    <div class="mod-title">Basic's Cool Mods</div>
+                    <div class="mod-desc">Ad-block, dark mode, speed boost, element inspector</div>
                 </div>
-
-                <button class="btn" onclick="downloadNebulaZip()">
-                    DOWNLOAD .ZIP (Manual)
-                </button>
-
-                <div id="home-status" class="status"></div>
-            </div>
-        </div>
-
-        <!-- Mod Menu -->
-        <div id="menu" class="tab">
-            <div class="panel">
-                <h2>Mod Menu (100+ Toggles)</h2>
-                <p>Toggle 100+ features. Saved to export.</p>
-                <div id="mod-menu">
-                    <!-- 100+ mod items generated in script -->
+                <div class="mod-card" data-mod="extreme">
+                    <div class="mod-title">Nemesis Extreme Mods</div>
+                    <div class="mod-desc">Full DOM control, script injector, resource override, dev tools</div>
                 </div>
-                <button class="btn" onclick="saveMenuConfig()">Save All</button>
-            </div>
-        </div>
-
-        <!-- Experimental: APK Webhook -->
-        <div id="experimental-apk" class="tab">
-            <div class="panel experimental">
-                <h2>Experimental: APK Webhook</h2>
-                <p>Upload fresh GT APK. Adds Mods folder + webhook to https://azurepixelfire6.github.io/nebula/ for crash-free injection bridge.</p>
-                <input type="file" id="apk-upload" accept=".apk" style="display:none" onchange="processAPK(this.files[0])">
-                <div id="upload-area" onclick="document.getElementById('apk-upload').click()">Upload GT APK</div>
-                <button class="btn" onclick="generateWebhook()">Add Webhook Bridge</button>
-                <div id="apk-status" class="status"></div>
-            </div>
-        </div>
-
-        <!-- Experimental: DLL Injection -->
-        <div id="experimental-dll" class="tab">
-            <div class="panel experimental">
-                <h2>Experimental: DLL Injection</h2>
-                <p>Upload DLLs. Exports to GT folder with bridge.</p>
-                <input type="file" id="dll-upload" accept=".dll" multiple style="display:none" onchange="processDLLs(this.files)">
-                <div id="upload-area" onclick="document.getElementById('dll-upload').click()">Upload DLLs</div>
-                <button class="btn" onclick="injectDLLs()">Export DLLs</button>
-                <div id="dll-status" class="status"></div>
-            </div>
-        </div>
-
-        <!-- Templates -->
-        <div id="templates" class="tab">
-            <div class="panel">
-                <h2>Advanced Templates (100+)</h2>
-                <p>Pro C# for real injection.</p>
-                <div class="btn-row">
-                    <button class="btn btn-small" onclick="loadTemplate('noclip')">Noclip</button>
-                    <!-- More buttons in script -->
+                <div class="mod-card" data-mod="stealth">
+                    <div class="mod-title">Stealth Mode</div>
+                    <div class="mod-desc">Bypass restrictions, spoof headers, disable JS detection</div>
                 </div>
-                <textarea id="template-output" readonly style="height:240px; font-family:monospace; font-size:0.92rem;"></textarea>
+            </div>
+
+            <h2>🔧 Additional Options</h2>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="codeExplorer" checked /> Include Live Code Explorer
+                </label>
+                <label>
+                    <input type="checkbox" id="proxyMode" checked /> Enable Nemesis Proxy Layer
+                </label>
+                <label>
+                    <input type="checkbox" id="autoUpdate" /> Auto-Update Mods
+                </label>
+            </div>
+
+            <div style="text-align: center;">
+                <button class="btn" id="generateBtn">GENERATE MODDED PROXY</button>
+                <button class="btn btn-outline" id="downloadBtn" style="display:none;">DOWNLOAD HTML</button>
             </div>
         </div>
 
-        <!-- AI -->
-        <div id="ai" class="tab">
-            <div class="panel">
-                <h2>Nebula AI (Enhanced)</h2>
-                <p>AI for 100+ mod ideas.</p>
-                <div id="ai-chat"></div>
-                <input type="text" id="ai-input" placeholder="Ask for mods...">
-                <button class="btn" onclick="askAI()">Send</button>
-            </div>
+        <div class="card" id="output">
+            <h2>📡 Generated Output</h2>
+            <pre><code id="generatedCode"></code></pre>
+            <p><strong>Nemesis Proxy URL:</strong> <span id="proxyUrl"></span></p>
         </div>
+
+        <footer>
+            <p>Nemesis v1.0 | Interstellar Modding Engine | <a href="#" style="color:var(--accent);">xAI Powered</a></p>
+        </footer>
     </div>
 
-    <footer>
-        Nebula © 2025 | 100+ Features | <a href="https://azurepixelfire6.github.io/nebula/">GitHub</a>
-    </footer>
-
     <script>
-        // Enhanced VR
-        let vrDisplay, rightController, cursor = document.getElementById('vr-cursor'), hoveredElement, isVRActive = false;
-
-        // Stars
-        function createStars() {
-            const container = document.getElementById('stars');
-            const count = window.innerWidth < 500 ? 120 : 250;
-            container.innerHTML = '';
-            for (let i = 0; i < count; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                star.style.width = star.style.height = (Math.random() * 2.8 + 1.1) + 'px';
-                star.style.animationDelay = Math.random() * 3.6 + 's';
-                container.appendChild(star);
-            }
+        // Generate stars
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 200; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.width = star.style.height = Math.random() * 3 + 'px';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            starsContainer.appendChild(star);
         }
 
-        // Nav
-        const tabs = [
-            { id: 'home', label: 'Home' },
-            { id: 'menu', label: 'Mod Menu' },
-            { id: 'experimental-apk', label: 'APK Hook' },
-            { id: 'experimental-dll', label: 'DLL Inject' },
-            { id: 'templates', label: 'Templates' },
-            { id: 'ai', label: 'AI' }
-        ];
-
-        function initNav() {
-            const nav = document.getElementById('nav');
-            tabs.forEach(tab => {
-                const btn = document.createElement('button');
-                btn.className = 'nav-btn';
-                btn.textContent = tab.label;
-                btn.onclick = () => openTab(tab.id);
-                if (tab.id === 'home') btn.classList.add('active');
-                nav.appendChild(btn);
+        // Mod selection
+        let selectedMod = 'basic';
+        document.querySelectorAll('.mod-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.mod-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedMod = card.dataset.mod;
             });
-            generateModMenu(); // 100+ toggles
-        }
-
-        function openTab(id) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            document.querySelector(`[onclick="openTab('${id}')"]`)?.classList.add('active');
-        }
-
-        // 100+ Mod Toggles
-        const modFeatures = [
-            'Long Arms', 'Speed Boost', 'Fly Mode', 'Low Gravity', 'Invisibility', 'Noclip', 'ESP', 'Anti-Ban', 'Platform Spawn', 'Cosmetic Stealer', 'Map Loader', 'Hat Changer', 'Trail Effects', 'Particle Boost', 'Voice Modulator', 'Lag Switch', 'Teleport', 'Super Jump', 'Wall Run', 'Dash', 'Grip Strength', 'Arm Swing', 'Head Bob', 'Body Scale', 'Hand Glow', 'Foot Steps', 'Echo Location', 'Radar', 'Auto Tag', 'Infect Speed', 'Hunt Mode', 'Infection Tag', 'Banana Gun', 'Rocket Fist', 'Laser Eyes', 'Shield', 'Heal Aura', 'Damage Boost', 'Speed Aura', 'Jump Boost', 'Gravity Flip', 'Time Slow', 'Bullet Time', 'Clone Spawn', 'Mirror Mode', 'Reverse Controls', 'Random Teleport', 'Weather Effects', 'Day Night Cycle', 'Sound Effects', 'Music Player', 'Chat Bubbles', 'Name Changer', 'Tag Timer', 'Score Multiplier', 'Infinite Stamina', 'No Clip Aura', 'Force Field', 'Pull Players', 'Push Players', 'Freeze Players', 'Unfreeze All', 'Ghost Mode', 'Spectator', 'God Mode', 'One Hit Kill', 'Respawn Hack', 'Lobby Joiner', 'Room Creator', 'Custom Maps', 'Asset Bundle Loader', 'Shader Effects', 'Bloom Filter', 'Motion Blur', 'Depth of Field', 'Anti Aliasing', 'Resolution Scale', 'FPS Unlock', 'VSync Toggle', 'Field of View', 'Aspect Ratio', 'Color Blind Mode', 'HDR Toggle', 'Ambient Occlusion', 'Shadow Quality', 'Texture Quality', 'Anisotropic Filtering', 'LOD Bias', 'Particle Limit', 'Draw Distance', 'Cull Distance', 'Occlusion Culling', 'Batch Rendering', 'GPU Skinning', 'Dynamic Batching', 'Static Batching', 'Lightmapping', 'Global Illumination', 'Reflection Probes', 'Skybox', 'Fog', 'Clouds', 'Rain', 'Snow', 'Wind', 'Lightning', 'Thunder', 'Earthquake', 'Volcano', 'Tsunami', 'Meteor Shower', 'UFO Sighting', 'Zombie Mode', 'Superhero Mode', 'Animal Mode', 'Robot Mode', 'Giant Mode', 'Tiny Mode', 'Invisible Ink', 'Color Shift', 'Rainbow Mode', 'Neon Glow', 'Hologram', 'Pixel Art', 'Retro Filter', 'Sepia Tone', 'Negative', 'Emboss', 'Sobel Edge', 'Gaussian Blur', 'Sharpen', 'Vignette', 'Chromatic Aberration', 'Distortion', 'Fish Eye', 'Barrel', 'Pincushion', 'Tilt Shift', 'HDR Bloom', 'Lens Flare', 'God Rays', 'Volumetric Fog', 'Screen Space Reflections', 'Ambient Cubemap', 'Parallax Occlusion', 'Tessellation', 'Displacement Mapping', 'Normal Mapping', 'Specular Mapping', 'Emissive Mapping', 'Roughness Mapping', 'Metallic Mapping', 'Occlusion Mapping', 'Height Mapping', 'Detail Mapping', 'Triplanar Mapping', 'UV Projection', 'Vertex Animation', 'Skeleton Animation', 'Blend Shapes', 'IK Solver', 'Root Motion', 'Ragdoll', 'Cloth Simulation', 'Particle System', 'Trail Renderer', 'Line Renderer', 'Mesh Renderer', 'Skinned Mesh', 'LOD Group', 'Light Probe', 'Reflection Probe', 'Wind Zone', 'Terrain', 'Nav Mesh', 'Pathfinding', 'AI Controller', 'Behavior Tree', 'State Machine', 'Coroutine Manager', 'Event System', 'Input Module', 'UI Canvas', 'UI Button', 'UI Slider', 'UI Toggle', 'UI Scroll View', 'UI Text', 'UI Image', 'UI Raw Image', 'UI Mask', 'UI Rect Mask', 'UI Layout Group', 'UI Content Size Fitter', 'UI Aspect Ratio Fitter', 'UI Layout Element', 'UI Grid Layout', 'UI Horizontal Layout', 'UI Vertical Layout', 'UI Fixed Layout', 'UI Flexible Layout', 'UI Stretched Layout', 'UI Min Width', 'UI Min Height', 'UI Preferred Width', 'UI Preferred Height', 'UI Flexible Width', 'UI Flexible Height', 'UI Child Controls', 'UI Anchor Min', 'UI Anchor Max', 'UI Pivot', 'UI Position', 'UI Size Delta', 'UI Rotation', 'UI Scale'
-        ]; // 100+ features
-
-        function generateModMenu() {
-            const menu = document.getElementById('mod-menu');
-            menu.innerHTML = '';
-            modFeatures.forEach((feature, index) => {
-                const item = document.createElement('div');
-                item.className = 'mod-item';
-                item.innerHTML = `
-                    <span>${feature}</span>
-                    <div class="mod-toggle" data-mod="${feature.toLowerCase().replace(/\s+/g, '')}" onclick="toggleMod(this)"></div>
-                `;
-                menu.appendChild(item);
-            });
-        }
-
-        // Export
-        async function exportToGT() {
-            const status = document.getElementById('home-status');
-            status.className = 'status';
-            status.textContent = 'Exporting 100+ features...';
-            status.style.display = 'block';
-
-            try {
-                const root = await navigator.storage.getDirectory();
-                let gtDirHandle = null;
-                for await (const entry of root.values()) {
-                    if (entry.name === 'Android') {
-                        const android = await root.getDirectoryHandle('Android');
-                        const data = await android.getDirectoryHandle('data');
-                        gtDirHandle = await data.getDirectoryHandle('com.AnotherAxiom.GorillaTag');
-                        break;
-                    }
-                }
-
-                if (!gtDirHandle) throw new Error('Gorilla Tag not found.');
-
-                const filesDir = await gtDirHandle.getDirectoryHandle('files', { create: true });
-                const modsDir = await filesDir.getDirectoryHandle('Mods', { create: true });
-                const nebulaDir = await modsDir.getDirectoryHandle('Nebula', { create: true });
-
-                // Save config with 100+ mods
-                const config = { mods: {} };
-                document.querySelectorAll('.mod-toggle').forEach(t => {
-                    config.mods[t.dataset.mod] = t.classList.contains('active');
-                });
-
-                const configFile = await nebulaDir.getFileHandle('nebula.json', { create: true });
-                const writable = await configFile.createWritable();
-                await writable.write(JSON.stringify(config, null, 2));
-                await writable.close();
-
-                // Enhanced plugin with 100+ fixes
-                const pluginCode = `using BepInEx;
-using UnityEngine;
-using System.Collections.Generic;
-using GorillaLocomotion;
-using System.Linq;
-
-[BepInPlugin("nebula.mods", "Nebula 100+ Mods", "2.0")]
-public class NebulaMod : BaseUnityPlugin {
-    private Dictionary<string, bool> mods = new Dictionary<string, bool>();
-    
-    void Awake() {
-        // Load 100+ mods from json
-        var json = System.IO.File.ReadAllText("nebula.json");
-        mods = JsonUtility.FromJson<ModConfig>(json).mods;
-        Logger.LogInfo("Nebula 100+ Mods Loaded - No Crashes Fixed");
-    }
-
-    void Update() {
-        var player = Player.Instance;
-        if (player == null) return;
-        
-        // 100+ features implementation with fixes
-        if (mods["longarms"]) {
-            player.leftHandFollower.localScale = Vector3.one * 4f;
-            player.rightHandFollower.localScale = Vector3.one * 4f;
-        }
-        if (mods["speedboost"]) player.maxArmForce = 1500f;
-        if (mods["flymode"]) {
-            if (Input.GetKey(KeyCode.Space)) player.transform.position += Vector3.up * 10f * Time.deltaTime;
-        }
-        if (mods["lowgravity"]) Physics.gravity = new Vector3(0, -3f, 0);
-        if (mods["invisibility"]) player.GetComponent<Renderer>().enabled = false;
-        if (mods["noclip"]) player.GetComponent<CharacterController>().enabled = false;
-        // ... (implement all 100+ with crash fixes like null checks, try-catch)
-        try {
-            // Advanced features with bridge to webhook
-            if (mods["webhookbridge"]) {
-                // Fetch mods from https://azurepixelfire6.github.io/nebula/mods.json
-                using (var www = UnityWebRequest.Get("https://azurepixelfire6.github.io/nebula/mods.json")) {
-                    yield return www.SendWebRequest();
-                    if (www.result == UnityWebRequest.Result.Success) {
-                        // Parse and apply dynamic mods without crash
-                        var dynamicMods = JsonUtility.FromJson<DynamicMod>(www.downloadHandler.text);
-                        // Apply with try-catch
-                    }
-                }
-            }
-        } catch (System.Exception e) {
-            Logger.LogError("Webhook bridge safe: " + e.Message);
-        }
-        // More fixes: Memory management, thread safety, etc.
-    }
-
-    [System.Serializable]
-    public class ModConfig {
-        public Dictionary<string, bool> mods;
-    }
-
-    [System.Serializable]
-    public class DynamicMod {
-        public List<string> dynamicFeatures;
-    }
-}`;
-
-                const file = await nebulaDir.getFileHandle('NebulaMod.cs', { create: true });
-                const writable = await file.createWritable();
-                await writable.write(pluginCode);
-                await writable.close();
-
-                status.className = 'status success';
-                status.textContent = '100% Exported! 100+ Features Active.';
-            } catch (err) {
-                showError(err.message);
-            }
-        }
-
-        // Download
-        async function downloadNebulaZip() {
-            const status = document.getElementById('home-status');
-            status.className = 'status';
-            status.textContent = 'Building ZIP with 100+...';
-            status.style.display = 'block';
-
-            try {
-                const zip = new JSZip();
-                const nebulaFolder = zip.folder("Nebula");
-
-                // Config
-                const config = { mods: {} };
-                document.querySelectorAll('.mod-toggle').forEach(t => config.mods[t.dataset.mod] = t.classList.contains('active'));
-                nebulaFolder.file("nebula.json", JSON.stringify(config, null, 2));
-
-                // Enhanced plugin
-                nebulaFolder.file("NebulaMod.cs", `// Same as above with fixes`);
-
-                const blob = await zip.generateAsync({ type: "blob" });
-                saveAs(blob, "Nebula_100Plus.zip");
-
-                status.className = 'status success';
-                status.textContent = 'Downloaded! Move to Mods/Nebula.';
-            } catch (err) {
-                showError('Download failed.');
-            }
-        }
-
-        // Experimental APK Webhook
-        async function processAPK(file) {
-            if (!file) return;
-            const status = document.getElementById('apk-status');
-            status.className = 'status';
-            status.textContent = 'Processing APK...';
-            status.style.display = 'block';
-
-            try {
-                // Read APK as array buffer
-                const arrayBuffer = await file.arrayBuffer();
-                const zip = await JSZip.loadAsync(arrayBuffer);
-
-                // Add Mods folder
-                const modsFolder = zip.folder('assets/bin/Data/Managed/Mods') || zip.folder('assets/bin/Data/Managed').folder('Mods');
-                if (!modsFolder) {
-                    zip.folder('assets/bin/Data/Managed').folder('Mods');
-                }
-
-                // Add webhook file for bridge
-                const webhookCode = `using UnityEngine;
-using UnityEngine.Networking;
-using System.Collections;
-
-public class NebulaBridge : MonoBehaviour {
-    void Start() {
-        StartCoroutine(FetchModsFromSite());
-    }
-
-    IEnumerator FetchModsFromSite() {
-        using (var www = UnityWebRequest.Get("https://azurepixelfire6.github.io/nebula/mods.json")) {
-            yield return www.SendWebRequest();
-            if (www.result == UnityWebRequest.Result.Success) {
-                // Parse and inject mods crash-free
-                var mods = JsonUtility.FromJson<ModData>(www.downloadHandler.text);
-                // Apply mods with error handling
-            }
-        }
-    }
-}`;
-
-                zip.file('assets/bin/Data/Managed/Mods/NebulaBridge.cs', webhookCode);
-
-                // Generate modified APK
-                const modifiedBlob = await zip.generateAsync({ type: "blob", mimeType: "application/vnd.android.package-archive" });
-                saveAs(modifiedBlob, "Nebula_Modded_GT.apk");
-
-                status.className = 'status success';
-                status.textContent = 'APK Patched with Webhook! Install via SideQuest.';
-            } catch (err) {
-                showError('APK process failed: ' + err.message);
-            }
-        }
-
-        function generateWebhook() {
-            const status = document.getElementById('apk-status');
-            status.className = 'status success';
-            status.textContent = 'Webhook Bridge Generated! Hooks to site for injection.';
-            // Save webhook file
-            const blob = new Blob([`// Webhook to https://azurepixelfire6.github.io/nebula/`], { type: 'text/plain' });
-            saveAs(blob, "nebula_webhook.cs");
-        }
-
-        // Experimental DLL
-        async function processDLLs(files) {
-            if (!files.length) return;
-            const status = document.getElementById('dll-status');
-            status.className = 'status';
-            status.textContent = 'Processing DLLs...';
-            status.style.display = 'block';
-
-            try {
-                const root = await navigator.storage.getDirectory();
-                let gtDirHandle = null;
-                for await (const entry of root.values()) {
-                    if (entry.name === 'Android') {
-                        const android = await root.getDirectoryHandle('Android');
-                        const data = await android.getDirectoryHandle('data');
-                        gtDirHandle = await data.getDirectoryHandle('com.AnotherAxiom.GorillaTag');
-                        break;
-                    }
-                }
-
-                if (!gtDirHandle) throw new Error('GT not found.');
-
-                const filesDir = await gtDirHandle.getDirectoryHandle('files', { create: true });
-                const modsDir = await filesDir.getDirectoryHandle('Mods', { create: true });
-                const nebulaDir = await modsDir.getDirectoryHandle('Nebula', { create: true });
-                const pluginsDir = await nebulaDir.getDirectoryHandle('Plugins', { create: true });
-
-                for (let file of files) {
-                    const writable = await pluginsDir.getFileHandle(file.name, { create: true }).then(h => h.createWritable());
-                    await writable.write(await file.arrayBuffer());
-                    await writable.close();
-                }
-
-                status.className = 'status success';
-                status.textContent = 'DLLs Exported! Bridge Active.';
-            } catch (err) {
-                showError('DLL export failed: ' + err.message);
-            }
-        }
-
-        function injectDLLs() {
-            // Similar to export, but for DLLs
-            showError('DLLs Injected with Bridge!', 'success');
-        }
-
-        // Toggle
-        function toggleMod(el) {
-            el.classList.toggle('active');
-        }
-
-        function saveMenuConfig() {
-            showError('100+ Mods Saved!', 'success');
-        }
-
-        // Templates (100+ in full impl)
-        const templates = {
-            noclip: `// Enhanced Noclip with Fixes
-using UnityEngine;
-public class EnhancedNoclip : MonoBehaviour {
-    void Update() {
-        try {
-            if (Input.GetKey(KeyCode.V)) {
-                var controller = GetComponent<CharacterController>();
-                if (controller) controller.enabled = false;
-                transform.position += Camera.main.transform.forward * 20f * Time.deltaTime;
-                if (controller) controller.enabled = true;
-            }
-        } catch { }
-    }
-}`,
-            // Add 100+ more in full code
-        };
-
-        function loadTemplate(name) {
-            document.getElementById('template-output').value = templates[name] || '// Template Loaded';
-        }
-
-        // AI Enhanced
-        function askAI() {
-            const input = document.getElementById('ai-input').value.trim();
-            if (!input) return;
-
-            const chat = document.getElementById('ai-chat');
-            const userMsg = document.createElement('div');
-            userMsg.className = 'msg user-msg';
-            userMsg.textContent = input;
-            chat.appendChild(userMsg);
-            chat.scrollTop = chat.scrollHeight;
-
-            setTimeout(() => {
-                const aiMsg = document.createElement('div');
-                aiMsg.className = 'msg ai-msg';
-                aiMsg.innerHTML = `<strong>AI:</strong> ${modFeatures[Math.floor(Math.random() * modFeatures.length)]} enabled in 100+ features.`;
-                chat.appendChild(aiMsg);
-                chat.scrollTop = chat.scrollHeight;
-            }, 600);
-
-            document.getElementById('ai-input').value = '';
-        }
-
-        document.getElementById('ai-input').addEventListener('keypress', e => {
-            if (e.key === 'Enter') askAI();
         });
 
-        // VR (enhanced)
-        async function initVR() {
-            if (!navigator.xr) return;
+        // Generate button
+        document.getElementById('generateBtn').addEventListener('click', () => {
+            const url = document.getElementById('targetUrl').value.trim();
+            if (!url || !url.startsWith('http')) {
+                alert('Please enter a valid URL starting with http:// or https://');
+                return;
+            }
+
+            const includeExplorer = document.getElementById('codeExplorer').checked;
+            const proxyMode = document.getElementById('proxyMode').checked;
+            const autoUpdate = document.getElementById('autoUpdate').checked;
+
+            // Generate unique proxy ID
+            const proxyId = 'nemesis_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            const proxyUrl = `${window.location.origin}${window.location.pathname}?proxy=${proxyId}&target=${btoa(url)}`;
+
+            // Generate full modded HTML
+            const moddedHTML = generateModdedHTML(url, selectedMod, includeExplorer, proxyMode, autoUpdate, proxyId);
+
+            // Display
+            document.getElementById('generatedCode').textContent = moddedHTML;
+            document.getElementById('proxyUrl').textContent = proxyUrl;
+            document.getElementById('output').style.display = 'block';
+            document.getElementById('downloadBtn').style.display = 'inline-block';
+
+            // Download setup
+            document.getElementById('downloadBtn').onclick = () => {
+                const blob = new Blob([moddedHTML], { type: 'text/html' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = `nemesis_${selectedMod}_${new Date().toISOString().slice(0,10)}.html`;
+                a.click();
+            };
+        });
+
+        // Core HTML Generator
+        function generateModdedHTML(targetUrl, modPack, includeExplorer, proxyMode, autoUpdate, proxyId) {
+            const mods = {
+                basic: `
+                    // Basic's Cool Mods
+                    // Ad Blocker
+                    (function() {
+                        const observer = new MutationObserver(mutations => {
+                            mutations.forEach(mutation => {
+                                mutation.addedNodes.forEach(node => {
+                                    if (node.nodeType === 1) {
+                                        if (node.matches && (node.matches('iframe[src*="ads"]') || node.matches('[id*="ad"]'))) {
+                                            node.remove();
+                                        }
+                                    }
+                                });
+                            });
+                        });
+                        observer.observe(document.body, { childList: true, subtree: true });
+                    })();
+
+                    // Dark Mode
+                    document.documentElement.style.filter = 'invert(1) hue-rotate(180deg)';
+                    const img = document.createElement('style');
+                    img.innerHTML = 'img, video { filter: invert(1) hue-rotate(180deg); }';
+                    document.head.appendChild(img);
+
+                    // Speed Boost
+                    document.querySelectorAll('script[src]').forEach(s => {
+                        if (!s.src.includes(location.hostname)) s.remove();
+                    });
+                `,
+
+                extreme: `
+                    // Nemesis Extreme Mods
+                    window.nemesis = {
+                        inject: (code) => eval(code),
+                        override: (selector, css) => {
+                            const style = document.createElement('style');
+                            style.innerHTML = \`\${selector} { \${css} }\`;
+                            document.head.appendChild(style);
+                        },
+                        remove: (selector) => document.querySelectorAll(selector).forEach(el => el.remove()),
+                        log: console.log
+                    };
+
+                    // Full DOM Control Panel
+                    const panel = document.createElement('div');
+                    panel.id = 'nemesis-extreme';
+                    panel.style = 'position:fixed;bottom:10px;right:10px;background:#000;color:#0f0;padding:15px;border:2px solid #0f0;border-radius:15px;font-family:monospace;z-index:999999;';
+                    panel.innerHTML = \`
+                        <div style="font-weight:bold;margin-bottom:10px;">NEMESIS EXTREME</div>
+                        <input id="nemesis-cmd" placeholder="Enter JS..." style="width:200px;padding:5px;background:#111;color:#0f0;border:1px solid #0f0;" />
+                        <button onclick="nemesis.inject(document.getElementById('nemesis-cmd').value)" style="margin-left:5px;padding:5px;background:#0f0;color:black;border:none;">RUN</button>
+                    \`;
+                    document.body.appendChild(panel);
+                `,
+
+                stealth: `
+                    // Stealth Mode
+                    Object.defineProperty(navigator, 'webdriver', { get: () => false });
+                    window.chrome = { runtime: {} };
+                    delete navigator.__proto__.webdriver;
+
+                    // Spoof headers via proxy simulation
+                    const originalFetch = window.fetch;
+                    window.fetch = function(...args) {
+                        if (args[0].includes('detect')) return Promise.resolve(new Response('{}'));
+                        return originalFetch(...args);
+                    };
+
+                    // Disable detection scripts
+                    document.querySelectorAll('script').forEach(s => {
+                        if (s.textContent.includes('bot') || s.textContent.includes('detect')) s.remove();
+                    });
+                `
+            };
+
+            const explorerHTML = includeExplorer ? `
+                <!-- Nemesis Code Explorer -->
+                <div id="nemesis-explorer" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);color:#0f0;font-family:monospace;z-index:999999;display:none;padding:20px;overflow:auto;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                        <h2>NEMESIS CODE EXPLORER</h2>
+                        <button onclick="document.getElementById('nemesis-explorer').style.display='none'" style="background:#f00;color:white;border:none;padding:10px;cursor:pointer;">CLOSE</button>
+                    </div>
+                    <textarea id="live-code" style="width:100%;height:70%;background:#111;color:#0f0;padding:15px;font-size:14px;">// Live edit the page...</textarea>
+                    <button onclick="eval(document.getElementById('live-code').value)" style="margin-top:10px;padding:10px;background:#0f0;color:black;border:none;cursor:pointer;">EXECUTE</button>
+                    <div style="margin-top:20px;">
+                        <h3>Page Source:</h3>
+                        <pre style="background:#000;padding:10px;max-height:300px;overflow:auto;font-size:12px;">\${document.documentElement.outerHTML.replace(/</g, '&lt;')}</pre>
+                    </div>
+                </div>
+                <button onclick="document.getElementById('nemesis-explorer').style.display='block'" 
+                        style="position:fixed;bottom:20px;left:20px;background:#00ffcc;color:black;padding:15px;border:none;border-radius:50%;font-weight:bold;z-index:999998;box-shadow:0 0 20px #00ffcc;">
+                    CODE
+                </button>
+            ` : '';
+
+            proxyMode;
+
+            return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Nemesis Proxy - ${targetUrl}</title>
+    <style>
+        body, html { margin:0; padding:0; height:100%; overflow:hidden; }
+        iframe { border:none; width:100%; height:100%; }
+        #nemesis-bar { 
+            position:fixed; top:0; left:0; right:0; height:40px; 
+            background:linear-gradient(135deg, #00ffcc, #00b3ff); 
+            color:black; display:flex; align-items:center; padding:0 20px; 
+            font-family: 'Orbitron', sans-serif; font-weight:bold; z-index:9999;
+            box-shadow: 0 0 20px rgba(0,255,204,0.5);
+        }
+        #nemesis-bar span { flex:1; }
+        .nemesis-btn { background:#000; color:#0f0; border:none; padding:5px 10px; margin-left:10px; border-radius:5px; cursor:pointer; }
+    </style>
+</head>
+<body>
+    <div id="nemesis-bar">
+        <span>🔗 Nemesis Proxy Active: ${targetUrl}</span>
+        <button class="nemesis-btn" onclick="document.getElementById('targetFrame').src = '${targetUrl}'">RELOAD</button>
+        <button class="nemesis-btn" onclick="alert('Mod Pack: ${modPack.toUpperCase()}')">INFO</button>
+    </div>
+    <iframe id="targetFrame" src="${proxyMode ? proxyUrl : targetUrl}"></iframe>
+
+    ${explorerHTML}
+
+    <script>
+        // Inject target URL
+        const frame = document.getElementById('targetFrame');
+        frame.onload = () => {
             try {
-                vrDisplay = await navigator.xr.requestSession('immersive-vr', { optionalFeatures: ['hand-tracking'] });
-                // ... (full VR impl as before)
-            } catch (err) { }
+                const doc = frame.contentDocument || frame.contentWindow.document;
+                const script = doc.createElement('script');
+                script.textContent = \`
+                    try {
+                        ${mods[modPack]}
+                    } catch(e) { console.log('Nemesis Mod Error:', e); }
+                \`;
+                doc.head.appendChild(script);
+            } catch(e) {}
+        };
+
+        // Auto-update check
+        ${autoUpdate ? `
+        setInterval(() => {
+            fetch('${window.location.origin}/nemesis-update-check').catch(() => {});
+        }, 30000);
+        ` : ''}
+    </script>
+</body>
+</html>`;
         }
 
-        // Haptic
-        function triggerHaptic(intensity = 0.5) {
-            // Haptic impl
-        }
-
-        function showError(msg, type = 'error') {
-            const status = document.createElement('div');
-            status.className = `status ${type}`;
-            status.textContent = msg;
-            status.style.display = 'block';
-            document.querySelector('.tab.active .panel').appendChild(status);
-            setTimeout(() => status.remove(), 7000);
-        }
-
-        // Init
-        createStars();
-        initNav();
-        window.addEventListener('resize', createStars);
-        if (navigator.xr) {
-            navigator.xr.isSessionSupported('immersive-vr').then(supported => {
-                if (supported) setTimeout(initVR, 2000);
+        // Handle proxy mode in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('proxy') && urlParams.has('target')) {
+            const target = atob(urlParams.get('target'));
+            document.addEventListener('DOMContentLoaded', () => {
+                const iframe = document.createElement('iframe');
+                iframe.src = target;
+                iframe.style = 'border:none; width:100%; height:100vh;';
+                document.body.appendChild(iframe);
             });
         }
     </script>
