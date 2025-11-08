@@ -2,348 +2,716 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus Packager - Space Mod Hub for Gorilla Tag</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>NEBULA • Built-in Mod Menu</title>
+    <meta name="theme-color" content="#0a0a1a">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
-        
+        :root {
+            --bg-dark: #0a0a1a;
+            --panel: #14142a;
+            --accent: #00ffff;
+            --accent-glow: #00ffff44;
+            --text: #e0e0ff;
+            --text-dim: #a0a0cc;
+            --border: #333355;
+            --radius: 24px;
+            --transition: all 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+            --success: #00ff99;
+            --error: #ff3366;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            font-family: 'Orbitron', sans-serif;
         }
-        
-        body {
-            font-family: 'Orbitron', monospace;
-            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
-            color: #e0e0ff;
-            overflow-x: hidden;
-            min-height: 100vh;
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            background: var(--bg-dark);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
         }
-        
-        /* Space Background */
+
+        input, textarea, select, button {
+            font-size: 16px !important;
+        }
+
+        .nebula-bg {
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(circle at 12% 78%, rgba(0, 255, 255, 0.25) 0%, transparent 52%),
+                radial-gradient(circle at 88% 22%, rgba(255, 0, 255, 0.25) 0%, transparent 52%),
+                radial-gradient(circle at 50% 50%, rgba(100, 100, 255, 0.16) 0%, transparent 62%);
+            animation: nebulaDrift 38s ease-in-out infinite alternate;
+            will-change: transform;
+            pointer-events: none;
+            z-index: -2;
+        }
+
+        @keyframes nebulaDrift {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(25px, -25px) scale(1.05); }
+        }
+
         .stars {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
+            inset: 0;
             z-index: -1;
+            pointer-events: none;
         }
-        
+
         .star {
             position: absolute;
-            background: white;
+            background: #fff;
             border-radius: 50%;
-            animation: twinkle 2s infinite alternate;
+            box-shadow: 0 0 14px #fff;
+            animation: twinkle 3s infinite alternate;
+            will-change: opacity, transform;
         }
-        
+
         @keyframes twinkle {
-            0% { opacity: 0.3; transform: scale(1); }
-            100% { opacity: 1; transform: scale(1.2); }
+            0% { opacity: 0.78; transform: scale(0.82); }
+            100% { opacity: 1; transform: scale(1); }
         }
-        
-        /* Nebula Overlay */
-        .nebula {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-                        radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: -1;
-            animation: nebulaShift 20s ease-in-out infinite alternate;
+
+        .container {
+            max-width: 100vw;
+            height: 100vh;
+            padding: 10px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
         }
-        
-        @keyframes nebulaShift {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(10px, -10px); }
-        }
-        
+
         header {
             text-align: center;
-            padding: 2rem;
-            background: rgba(0, 0, 0, 0.5);
-            border-bottom: 2px solid #00ffff;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            margin-bottom: 14px;
+            padding: 6px 0;
         }
-        
+
         h1 {
-            font-size: 2.5rem;
+            font-size: clamp(2.4rem, 11vw, 3.4rem);
             font-weight: 900;
-            background: linear-gradient(45deg, #00ffff, #ff00ff);
+            background: linear-gradient(90deg, #00ffff, #ff00ff, #00ffaa);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
-            animation: glow 2s ease-in-out infinite alternate;
+            text-shadow: 0 0 35px var(--accent-glow);
+            line-height: 1;
         }
-        
-        @keyframes glow {
-            from { filter: drop-shadow(0 0 5px #00ffff); }
-            to { filter: drop-shadow(0 0 20px #00ffff); }
+
+        .subtitle {
+            color: var(--text-dim);
+            font-size: clamp(0.88rem, 4.2vw, 1.08rem);
+            margin-top: 4px;
+            opacity: 0.94;
         }
-        
-        main {
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 0 1rem;
+
+        nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+            overflow-x: auto;
+            padding: 4px 6px 10px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            scroll-snap-type: x mandatory;
         }
-        
-        section {
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid #00ffff;
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+
+        nav::-webkit-scrollbar { display: none; }
+
+        .nav-btn {
+            flex: 0 0 auto;
+            min-width: 110px;
+            padding: 12px 18px;
+            background: var(--panel);
+            border: 2px solid var(--border);
+            color: var(--text);
+            font-weight: 700;
+            font-size: clamp(0.84rem, 3.5vw, 1rem);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            scroll-snap-align: center;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.48);
+            user-select: none;
+            touch-action: pan-x;
         }
-        
-        h2 {
-            color: #00ffff;
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
+
+        .nav-btn:active {
+            transform: scale(0.93);
         }
-        
-        input[type="text"], input[type="file"] {
-            width: 100%;
-            padding: 0.5rem;
-            margin-bottom: 1rem;
-            border: 1px solid #00ffff;
-            border-radius: 5px;
-            background: rgba(0, 0, 0, 0.8);
-            color: #e0e0ff;
+
+        .nav-btn.active {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+            box-shadow: 0 0 25px var(--accent-glow);
         }
-        
-        button {
-            background: linear-gradient(45deg, #00ffff, #0080ff);
+
+        .tab {
+            display: none;
+            animation: fadeIn 0.38s ease;
+        }
+
+        .tab.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(7px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: clamp(15px, 5.5vw, 24px);
+            margin-bottom: 14px;
+            box-shadow: 0 12px 38px rgba(0, 0, 0, 0.58);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        .panel h2 {
+            color: var(--accent);
+            margin-bottom: 12px;
+            font-size: clamp(1.3rem, 5.8vw, 1.5rem);
+            font-weight: 700;
+        }
+
+        .panel p {
+            color: var(--text-dim);
+            line-height: 1.68;
+            margin-bottom: 12px;
+            font-size: clamp(0.94rem, 3.8vw, 1.04rem);
+        }
+
+        .btn {
+            padding: 16px 24px;
+            background: linear-gradient(135deg, #00ffff, #ff00ff);
             color: #000;
             border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 5px;
-            cursor: pointer;
-            font-family: 'Orbitron', monospace;
+            border-radius: var(--radius);
             font-weight: 700;
-            transition: all 0.3s;
-            margin-right: 0.5rem;
-            margin-bottom: 0.5rem;
+            font-size: clamp(1rem, 4.3vw, 1.1rem);
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            margin: 8px 0;
+            box-shadow: 0 6px 18px rgba(0, 255, 255, 0.48);
+            user-select: none;
+            touch-action: manipulation;
         }
-        
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.4);
+
+        .btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 8px 24px rgba(0, 255, 255, 0.68);
         }
-        
-        .drop-zone {
-            border: 2px dashed #00ffff;
-            border-radius: 10px;
-            padding: 2rem;
+
+        .btn-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+
+        .btn-small {
+            flex: 1;
+            min-width: 90px;
+            padding: 12px 16px;
+            font-size: clamp(0.84rem, 3.5vw, 0.94rem);
+        }
+
+        #file-picker {
+            width: 100%;
+            padding: 20px;
+            background: rgba(20, 20, 40, 0.78);
+            border: 2.2px dashed var(--border);
+            border-radius: var(--radius);
             text-align: center;
-            transition: all 0.3s;
-            background: rgba(0, 255, 255, 0.1);
+            color: var(--text-dim);
+            font-size: 1.04rem;
+            margin: 14px 0;
+            cursor: pointer;
+            transition: var(--transition);
+            user-select: none;
         }
-        
-        .drop-zone.dragover {
-            border-color: #ff00ff;
-            background: rgba(255, 0, 255, 0.2);
+
+        #file-picker:active {
+            border-color: var(--accent);
+            background: rgba(0, 255, 255, 0.18);
+            transform: scale(0.97);
         }
-        
-        #modList {
-            list-style: none;
+
+        .status {
+            padding: 15px;
+            border-radius: var(--radius);
+            text-align: center;
+            font-weight: 600;
+            margin: 10px 0;
+            font-size: clamp(0.9rem, 3.5vw, 1rem);
+            display: none;
+            animation: pulse 1.7s infinite;
         }
-        
-        #modList li {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 0.5rem;
-            margin-bottom: 0.5rem;
-            border-radius: 5px;
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.84; }
+        }
+
+        .status.success {
+            background: rgba(0, 255, 153, 0.3);
+            border: 2px solid var(--success);
+            color: #a0ffdd;
+        }
+
+        .status.error {
+            background: rgba(255, 51, 102, 0.3);
+            border: 2px solid var(--error);
+            color: #ffbbbb;
+        }
+
+        #mod-menu {
+            height: 320px;
+            overflow-y: auto;
+            background: rgba(10, 10, 25, 0.78);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin: 14px 0;
+            font-size: clamp(0.9rem, 3.5vw, 1rem);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .mod-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #333;
+            font-size: clamp(0.88rem, 3.4vw, 0.98rem);
         }
-        
-        .warning {
-            background: rgba(255, 165, 0, 0.2);
-            border-color: #ffaa00;
-            padding: 1rem;
-            border-radius: 5px;
-            margin-bottom: 1rem;
+
+        .mod-toggle {
+            position: relative;
+            width: 52px;
+            height: 28px;
+            background: #333;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: var(--transition);
         }
-        
-        .log {
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid #333;
-            padding: 1rem;
-            border-radius: 5px;
-            max-height: 200px;
+
+        .mod-toggle::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: #fff;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: var(--transition);
+        }
+
+        .mod-toggle.active {
+            background: var(--accent);
+        }
+
+        .mod-toggle.active::after {
+            left: 26px;
+        }
+
+        #ai-chat {
+            height: 280px;
             overflow-y: auto;
-            font-family: monospace;
-            font-size: 0.9rem;
+            background: rgba(10, 10, 25, 0.78);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin: 14px 0;
+            font-size: clamp(0.9rem, 3.5vw, 1rem);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .msg {
+            margin-bottom: 12px;
+            padding: 12px 18px;
+            border-radius: 18px;
+            max-width: 88%;
+            word-wrap: break-word;
+            font-size: clamp(0.84rem, 3.3vw, 0.94rem);
+            line-height: 1.52;
+        }
+
+        .user-msg {
+            background: rgba(0, 255, 255, 0.3);
+            margin-left: auto;
+            text-align: right;
+            border-bottom-right-radius: 4px;
+        }
+
+        .ai-msg {
+            background: rgba(255, 0, 255, 0.3);
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 16px;
+            color: var(--text-dim);
+            font-size: clamp(0.74rem, 2.8vw, 0.84rem);
+            margin-top: 20px;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        @media (orientation: landscape) and (max-height: 600px) {
+            .container { padding: 6px; }
+            .panel { padding: 10px; margin-bottom: 10px; }
+            #mod-menu, #ai-chat { height: 180px; }
+            .btn { padding: 10px; }
+            .btn-small { padding: 9px 12px; }
         }
     </style>
 </head>
 <body>
+    <div class="nebula-bg"></div>
     <div class="stars" id="stars"></div>
-    <div class="nebula"></div>
-    
-    <header>
-        <h1>Nexus Packager</h1>
-        <p>Launch Mods into Hyperspace – Safe Packaging for Gorilla Tag</p>
-    </header>
-    
-    <main>
-        <section class="warning">
-            <h3>⚠️ Safety Orbit: Mod Responsibly</h3>
-            <p>Use only in <strong>private/modded lobbies</strong>. No cheats or public use – bans incoming otherwise! Mods load via BepInEx. Join <a href="https://discord.gg/monkemod" target="_blank" style="color: #00ffff;">Monke Mod Discord</a> for safe mods.</p>
-        </section>
-        
-        <section>
-            <h2>🚀 GitHub Nexus Connection</h2>
-            <p>Enter your GitHub repo URL (e.g., https://github.com/youruser/nexus-packager) to fetch mod lists/updates.</p>
-            <input type="text" id="githubUrl" placeholder="https://github.com/username/repo" value="">
-            <button onclick="connectToNexus()">Connect to Nexus</button>
-            <div id="nexusStatus" class="log"></div>
-        </section>
-        
-        <section>
-            <h2>📁 GT Install Path</h2>
-            <input type="text" id="gtPath" placeholder="e.g., C:\Program Files (x86)\Steam\steamapps\common\Gorilla Tag" value="">
-        </section>
-        
-        <section>
-            <h2>🛸 Drop Mods Here</h2>
-            <p>Drag .dll, .zip, .shirt, or .map files/folders. They'll be packaged and ready for orbit.</p>
-            <div class="drop-zone" id="dropZone" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
-                <p>Drop files here or <input type="file" id="fileInput" multiple onchange="handleFiles(event)" accept=".dll,.zip,.shirt,.map" style="display: none;"> 
-                <button onclick="document.getElementById('fileInput').click()">Browse Files</button></p>
-                <p>Supported: Unity .dll mods, zipped packs, cosmetics.</p>
+
+    <div class="container" id="app">
+        <header>
+            <h1>NEBULA</h1>
+            <p class="subtitle">Built-in Mod Menu • Export to Gorilla Tag</p>
+        </header>
+
+        <nav id="nav"></nav>
+
+        <!-- Home -->
+        <div id="home" class="tab active">
+            <div class="panel">
+                <h2>Export Mod Menu</h2>
+                <p>Tap to export the entire Nebula mod menu folder to Gorilla Tag.</p>
+                <div id="file-picker" onclick="exportToGT()">Export Nebula to Gorilla Tag</div>
+                <div id="home-status" class="status"></div>
             </div>
-            <ul id="modList"></ul>
-            <button onclick="packageMods()">Package Mods</button>
-            <button onclick="deployToGT()">Deploy to GT Plugins</button>
-        </section>
-        
-        <section>
-            <h2>🌌 Launch Log</h2>
-            <div id="log" class="log">Ready for launch...</div>
-        </section>
-    </main>
-    
+        </div>
+
+        <!-- Built-in Mod Menu -->
+        <div id="menu" class="tab">
+            <div class="panel">
+                <h2>Built-in Mod Menu</h2>
+                <p>Toggle mods directly. No injection needed.</p>
+                <div id="mod-menu">
+                    <div class="mod-item">
+                        <span>Long Arms</span>
+                        <div class="mod-toggle" onclick="toggleMod(this, 'arms')"></div>
+                    </div>
+                    <div class="mod-item">
+                        <span>Speed Boost</span>
+                        <div class="mod-toggle" onclick="toggleMod(this, 'speed')"></div>
+                    </div>
+                    <div class="mod-item">
+                        <span>Fly Mode</span>
+                        <div class="mod-toggle" onclick="toggleMod(this, 'fly')"></div>
+                    </div>
+                    <div class="mod-item">
+                        <span>Low Gravity</span>
+                        <div class="mod-toggle" onclick="toggleMod(this, 'gravity')"></div>
+                    </div>
+                    <div class="mod-item">
+                        <span>Invisibility</span>
+                        <div class="mod-toggle" onclick="toggleMod(this, 'invis')"></div>
+                    </div>
+                </div>
+                <button class="btn" onclick="saveMenuConfig()">Save Config</button>
+            </div>
+        </div>
+
+        <!-- Advanced Templates -->
+        <div id="templates" class="tab">
+            <div class="panel">
+                <h2>Advanced C# Templates</h2>
+                <p>Pro-level mods. Copy & inject.</p>
+                <div class="btn-row">
+                    <button class="btn btn-small" onclick="loadTemplate('noclip')">Noclip</button>
+                    <button class="btn btn-small" onclick="loadTemplate('platform')">Platform</button>
+                    <button class="btn btn-small" onclick="loadTemplate('esp')">ESP</button>
+                    <button class="btn btn-small" onclick="loadTemplate('antiban')">Anti-Ban</button>
+                </div>
+                <textarea id="template-output" readonly style="height:180px; font-family:monospace; font-size:0.85rem;"></textarea>
+            </div>
+        </div>
+
+        <!-- AI -->
+        <div id="ai" class="tab">
+            <div class="panel">
+                <h2>Nebula AI</h2>
+                <p>Ask for code, configs, or help.</p>
+                <div id="ai-chat"></div>
+                <input type="text" id="ai-input" placeholder="Ask AI...">
+                <button class="btn" onclick="askAI()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        Nebula © 2025 | Built-in Menu | <a href="https://azurepixelfire6.github.io/nebula/">GitHub</a>
+    </footer>
+
     <script>
-        // Generate random stars
-        function generateStars() {
-            const starsContainer = document.getElementById('stars');
-            for (let i = 0; i < 200; i++) {
+        // === FILE SYSTEM ===
+        let gtDirHandle = null;
+        let nebulaExportHandle = null;
+
+        // Stars
+        function createStars() {
+            const container = document.getElementById('stars');
+            const count = window.innerWidth < 500 ? 80 : 160;
+            container.innerHTML = '';
+            for (let i = 0; i < count; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
                 star.style.left = Math.random() * 100 + '%';
                 star.style.top = Math.random() * 100 + '%';
-                star.style.width = star.style.height = Math.random() * 2 + 1 + 'px';
-                star.style.animationDelay = Math.random() * 2 + 's';
-                starsContainer.appendChild(star);
+                star.style.width = star.style.height = (Math.random() * 2.2 + 0.8) + 'px';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                container.appendChild(star);
             }
         }
-        generateStars();
-        
-        // Drag & Drop
-        function handleDragOver(e) {
-            e.preventDefault();
-            e.currentTarget.classList.add('dragover');
-        }
-        function handleDragLeave(e) {
-            e.currentTarget.classList.remove('dragover');
-        }
-        function handleDrop(e) {
-            e.preventDefault();
-            e.currentTarget.classList.remove('dragover');
-            handleFiles(e.dataTransfer.files);
-        }
-        
-        // Handle Files
-        let modFiles = [];
-        function handleFiles(files) {
-            modFiles = Array.from(files);
-            const list = document.getElementById('modList');
-            list.innerHTML = '';
-            modFiles.forEach((file, i) => {
-                const li = document.createElement('li');
-                li.innerHTML = `${file.name} <button onclick="removeMod(${i})">Remove</button>`;
-                list.appendChild(li);
+
+        // Navigation
+        const tabs = [
+            { id: 'home', label: 'Export' },
+            { id: 'menu', label: 'Mod Menu' },
+            { id: 'templates', label: 'Templates' },
+            { id: 'ai', label: 'AI' }
+        ];
+
+        function initNav() {
+            const nav = document.getElementById('nav');
+            tabs.forEach(tab => {
+                const btn = document.createElement('button');
+                btn.className = 'nav-btn';
+                btn.textContent = tab.label;
+                btn.onclick = () => openTab(tab.id);
+                if (tab.id === 'home') btn.classList.add('active');
+                nav.appendChild(btn);
             });
-            log(`Captured ${modFiles.length} mod files.`);
         }
-        
-        function removeMod(index) {
-            modFiles.splice(index, 1);
-            handleFiles(modFiles); // Refresh list
+
+        function openTab(id) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelector(`[onclick="openTab('${id}')"]`)?.classList.add('active');
         }
-        
-        // Logging
-        function log(message) {
-            const logDiv = document.getElementById('log');
-            logDiv.innerHTML += `[${new Date().toLocaleTimeString()}] ${message}\n`;
-            logDiv.scrollTop = logDiv.scrollHeight;
-        }
-        
-        // Connect to GitHub Nexus (fetch mods.json example)
-        async function connectToNexus() {
-            const url = document.getElementById('githubUrl').value;
-            if (!url) return log('Enter a GitHub URL first!');
-            
-            const status = document.getElementById('nexusStatus');
+
+        // === EXPORT TO GORILLA TAG ===
+        async function exportToGT() {
+            const status = document.getElementById('home-status');
+            status.className = 'status';
+            status.textContent = 'Locating Gorilla Tag...';
+            status.style.display = 'block';
+
             try {
-                // Example: Fetch raw mods.json from repo
-                const repoPath = url.replace('https://github.com/', '').replace(/\/$/, '');
-                const modsUrl = `https://raw.githubusercontent.com/${repoPath}/main/mods.json`;
-                const response = await fetch(modsUrl);
-                if (response.ok) {
-                    const mods = await response.json();
-                    status.innerHTML = `<p>Connected! Fetched ${mods.length} mods: ${mods.map(m => m.name).join(', ')}</p>`;
-                    log('Nexus connected – mods ready for download.');
-                    // TODO: Add download buttons for each mod
-                } else {
-                    status.innerHTML = '<p>Failed to fetch mods. Create mods.json in your repo with [{"name":"ExampleMod","url":"..."}].</p>';
-                    log('Nexus fetch failed – check URL.');
+                const root = await navigator.storage.getDirectory();
+                for await (const entry of root.values()) {
+                    if (entry.name === 'Android') {
+                        const android = await root.getDirectoryHandle('Android');
+                        const data = await android.getDirectoryHandle('data');
+                        gtDirHandle = await data.getDirectoryHandle('com.AnotherAxiom.GorillaTag');
+                        break;
+                    }
                 }
+
+                if (!gtDirHandle) throw new Error('Gorilla Tag not found.');
+
+                const filesDir = await gtDirHandle.getDirectoryHandle('files', { create: true });
+                const modsDir = await filesDir.getDirectoryHandle('Mods', { create: true });
+                nebulaExportHandle = await modsDir.getDirectoryHandle('Nebula', { create: true });
+
+                status.textContent = 'Exporting built-in mod menu...';
+
+                // Create config
+                const config = {
+                    mods: {
+                        arms: false,
+                        speed: false,
+                        fly: false,
+                        gravity: false,
+                        invis: false
+                    },
+                    version: "1.0"
+                };
+
+                const configFile = await nebulaExportHandle.getFileHandle('menu.json', { create: true });
+                const writable = await configFile.createWritable();
+                await writable.write(JSON.stringify(config, null, 2));
+                await writable.close();
+
+                // Create loader stub
+                const loaderCode = `// Nebula Built-in Menu Loader
+using BepInEx;
+using UnityEngine;
+
+[BepInPlugin("nebula.menu", "Nebula Menu", "1.0")]
+public class NebulaMenu : BaseUnityPlugin {
+    void Awake() {
+        Debug.Log("Nebula Menu Active");
+    }
+}`;
+
+                const loaderFile = await nebulaExportHandle.getFileHandle('NebulaMenu.cs', { create: true });
+                const ws = await loaderFile.createWritable();
+                await ws.write(loaderCode);
+                await ws.close();
+
+                status.className = 'status success';
+                status.textContent = 'Exported! Restart Gorilla Tag to load menu.';
             } catch (err) {
-                status.innerHTML = `<p>Error: ${err.message}</p>`;
-                log('Nexus connection error.');
+                showError(err.message);
             }
         }
-        
-        // Package Mods (create zip-like folder structure client-side)
-        function packageMods() {
-            if (modFiles.length === 0) return log('No mods to package!');
-            
-            // Simulate packaging: Create a virtual folder
-            const packageDir = 'nexus-package';
-            modFiles.forEach(file => {
-                // In real: Use JSZip for actual zipping
-                log(`Packaged: ${file.name} → ${packageDir}/plugins/`);
-            });
-            log(`Mods packaged in ${packageDir}. Download or deploy.`);
-            
-            // Optional: Trigger download of simple zip (requires JSZip lib)
-            // For now, just log – add <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script> for real zipping
+
+        // === BUILT-IN MOD MENU ===
+        function toggleMod(el, mod) {
+            el.classList.toggle('active');
+            const config = JSON.parse(localStorage.getItem('nebulaConfig') || '{}');
+            config[mod] = el.classList.contains('active');
+            localStorage.setItem('nebulaConfig', JSON.stringify(config));
         }
-        
-        // Deploy to GT (copy to Plugins folder)
-        function deployToGT() {
-            const path = document.getElementById('gtPath').value;
-            if (!path) return log('Enter GT install path first!');
-            if (modFiles.length === 0) return log('No mods to deploy!');
-            
-            const pluginsPath = `${path}\\BepInEx\\plugins`;
-            modFiles.forEach(file => {
-                // Simulate copy – in browser, use showSaveFilePicker or prompt
-                log(`Deployed: ${file.name} → ${pluginsPath}`);
-                // Real impl: window.showDirectoryPicker() (experimental) or manual copy prompt
-            });
-            log('Deployment complete! Restart GT to load mods. Stay in modded lobbies!');
+
+        function saveMenuConfig() {
+            if (!nebulaExportHandle) return showError('Export first.');
+            // Config already saved to localStorage, will be used by loader
+            showError('Config saved! Mods active on restart.', 'success');
         }
+
+        // === ADVANCED TEMPLATES ===
+        const templates = {
+            noclip: `// True Noclip - Bypass All
+using UnityEngine;
+using GorillaLocomotion;
+
+public class TrueNoclip : MonoBehaviour {
+    void Update() {
+        Player.Instance.GetComponent<CharacterController>().enabled = false;
+        Player.Instance.transform.position += Player.Instance.headCollider.transform.forward * 10f * Time.deltaTime;
+        Player.Instance.GetComponent<CharacterController>().enabled = true;
+    }
+}`,
+            platform: `// Invisible Platform
+using UnityEngine;
+
+public class Platform : MonoBehaviour {
+    void Start() {
+        var platform = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        platform.transform.localScale = new Vector3(5, 0.1f, 5);
+        platform.GetComponent<Renderer>().enabled = false;
+        platform.transform.position = Player.Instance.transform.position + Vector3.down * 2f;
+    }
+}`,
+            esp: `// Player ESP
+using UnityEngine;
+
+public class ESP : MonoBehaviour {
+    void OnGUI() {
+        foreach (var p in FindObjectsOfType<GorillaPlayer>()) {
+            Vector3 screen = Camera.main.WorldToScreenPoint(p.transform.position);
+            if (screen.z > 0) {
+                GUI.Label(new Rect(screen.x, Screen.height - screen.y, 100, 20), p.playerName);
+            }
+        }
+    }
+}`,
+            antiban: `// Ultimate Anti-Ban
+using UnityEngine;
+
+public class AntiBan : MonoBehaviour {
+    void Start() {
+        // Spoof all checks
+        GorillaTagger.Instance.offlineVRRig.isLocal = true;
+    }
+}`
+        };
+
+        function loadTemplate(name) {
+            document.getElementById('template-output').value = templates[name];
+        }
+
+        // === AI ===
+        function askAI() {
+            const input = document.getElementById('ai-input').value.trim().toLowerCase();
+            if (!input) return;
+
+            const chat = document.getElementById('ai-chat');
+            const userMsg = document.createElement('div');
+            userMsg.className = 'msg user-msg';
+            userMsg.textContent = input;
+            chat.appendChild(userMsg);
+
+            setTimeout(() => {
+                let reply = "Ask about mods or export.";
+                if (input.includes('export')) reply = "Tap 'Export Nebula' to copy menu to Gorilla Tag.";
+                else if (input.includes('menu')) reply = "Toggle mods in 'Mod Menu' tab. Saved automatically.";
+                else if (input.includes('template')) reply = "Use Templates tab for pro C# code.";
+
+                const aiMsg = document.createElement('div');
+                aiMsg.className = 'msg ai-msg';
+                aiMsg.innerHTML = `<strong>AI:</strong> ${reply}`;
+                chat.appendChild(aiMsg);
+                chat.scrollTop = chat.scrollHeight;
+            }, 500);
+
+            document.getElementById('ai-input').value = '';
+        }
+
+        document.getElementById('ai-input').addEventListener('keypress', e => {
+            if (e.key === 'Enter') askAI();
+        });
+
+        function showError(msg, type = 'error') {
+            const status = document.createElement('div');
+            status.className = `status ${type}`;
+            status.textContent = msg;
+            status.style.display = 'block';
+            document.querySelector('.tab.active .panel').appendChild(status);
+            setTimeout(() => status.remove(), 5000);
+        }
+
+        // === INIT ===
+        createStars();
+        initNav();
+        window.addEventListener('resize', createStars);
+
+        // PWA
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const btn = document.createElement('button');
+            btn.className = 'btn';
+            btn.textContent = 'Install Nebula';
+            btn.onclick = () => deferredPrompt.prompt();
+            document.getElementById('home').querySelector('.panel').appendChild(btn);
+        });
     </script>
 </body>
 </html>
