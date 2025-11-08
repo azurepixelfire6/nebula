@@ -1,12 +1,11 @@
 {
-  "name": "Nebula Mod Menu",
+  "name": "Nebula Real Mods",
   "short_name": "Nebula",
-  "description": "Built-in mod menu for Gorilla Tag",
+  "description": "100% real export + download",
   "start_url": "/nebula/",
   "display": "standalone",
   "background_color": "#0a0a1a",
   "theme_color": "#00ffff",
-  "orientation": "any",
   "icons": [
     { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
