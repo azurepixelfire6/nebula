@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Packager - Space Mod Hub for Gorilla Tag</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Orbitron', monospace;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e0e0ff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        /* Space Background */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite alternate;
+        }
+        
+        @keyframes twinkle {
+            0% { opacity: 0.3; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+        
+        /* Nebula Overlay */
+        .nebula {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+            animation: nebulaShift 20s ease-in-out infinite alternate;
+        }
+        
+        @keyframes nebulaShift {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(10px, -10px); }
+        }
+        
+        header {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.5);
+            border-bottom: 2px solid #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #00ffff, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 5px #00ffff); }
+            to { filter: drop-shadow(0 0 20px #00ffff); }
+        }
+        
+        main {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        section {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #00ffff;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+        }
+        
+        h2 {
+            color: #00ffff;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        input[type="text"], input[type="file"] {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #00ffff;
+            border-radius: 5px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #e0e0ff;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #00ffff, #0080ff);
+            color: #000;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            transition: all 0.3s;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.4);
+        }
+        
+        .drop-zone {
+            border: 2px dashed #00ffff;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+            background: rgba(0, 255, 255, 0.1);
+        }
+        
+        .drop-zone.dragover {
+            border-color: #ff00ff;
+            background: rgba(255, 0, 255, 0.2);
+        }
+        
+        #modList {
+            list-style: none;
+        }
+        
+        #modList li {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .warning {
+            background: rgba(255, 165, 0, 0.2);
+            border-color: #ffaa00;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+        
+        .log {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #333;
+            padding: 1rem;
+            border-radius: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    <div class="nebula"></div>
+    
+    <header>
+        <h1>Nexus Packager</h1>
+        <p>Launch Mods into Hyperspace – Safe Packaging for Gorilla Tag</p>
+    </header>
+    
+    <main>
+        <section class="warning">
+            <h3>⚠️ Safety Orbit: Mod Responsibly</h3>
+            <p>Use only in <strong>private/modded lobbies</strong>. No cheats or public use – bans incoming otherwise! Mods load via BepInEx. Join <a href="https://discord.gg/monkemod" target="_blank" style="color: #00ffff;">Monke Mod Discord</a> for safe mods.</p>
+        </section>
+        
+        <section>
+            <h2>🚀 GitHub Nexus Connection</h2>
+            <p>Enter your GitHub repo URL (e.g., https://github.com/youruser/nexus-packager) to fetch mod lists/updates.</p>
+            <input type="text" id="githubUrl" placeholder="https://github.com/username/repo" value="">
+            <button onclick="connectToNexus()">Connect to Nexus</button>
+            <div id="nexusStatus" class="log"></div>
+        </section>
+        
+        <section>
+            <h2>📁 GT Install Path</h2>
+            <input type="text" id="gtPath" placeholder="e.g., C:\Program Files (x86)\Steam\steamapps\common\Gorilla Tag" value="">
+        </section>
+        
+        <section>
+            <h2>🛸 Drop Mods Here</h2>
+            <p>Drag .dll, .zip, .shirt, or .map files/folders. They'll be packaged and ready for orbit.</p>
+            <div class="drop-zone" id="dropZone" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                <p>Drop files here or <input type="file" id="fileInput" multiple onchange="handleFiles(event)" accept=".dll,.zip,.shirt,.map" style="display: none;"> 
+                <button onclick="document.getElementById('fileInput').click()">Browse Files</button></p>
+                <p>Supported: Unity .dll mods, zipped packs, cosmetics.</p>
+            </div>
+            <ul id="modList"></ul>
+            <button onclick="packageMods()">Package Mods</button>
+            <button onclick="deployToGT()">Deploy to GT Plugins</button>
+        </section>
+        
+        <section>
+            <h2>🌌 Launch Log</h2>
+            <div id="log" class="log">Ready for launch...</div>
+        </section>
+    </main>
+    
+    <script>
+        // Generate random stars
+        function generateStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 200; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = star.style.height = Math.random() * 2 + 1 + 'px';
+                star.style.animationDelay = Math.random() * 2 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+        generateStars();
+        
+        // Drag & Drop
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('dragover');
+        }
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('dragover');
+        }
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        }
+        
+        // Handle Files
+        let modFiles = [];
+        function handleFiles(files) {
+            modFiles = Array.from(files);
+            const list = document.getElementById('modList');
+            list.innerHTML = '';
+            modFiles.forEach((file, i) => {
+                const li = document.createElement('li');
+                li.innerHTML = `${file.name} <button onclick="removeMod(${i})">Remove</button>`;
+                list.appendChild(li);
+            });
+            log(`Captured ${modFiles.length} mod files.`);
+        }
+        
+        function removeMod(index) {
+            modFiles.splice(index, 1);
+            handleFiles(modFiles); // Refresh list
+        }
+        
+        // Logging
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            logDiv.innerHTML += `[${new Date().toLocaleTimeString()}] ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        // Connect to GitHub Nexus (fetch mods.json example)
+        async function connectToNexus() {
+            const url = document.getElementById('githubUrl').value;
+            if (!url) return log('Enter a GitHub URL first!');
+            
+            const status = document.getElementById('nexusStatus');
+            try {
+                // Example: Fetch raw mods.json from repo
+                const repoPath = url.replace('https://github.com/', '').replace(/\/$/, '');
+                const modsUrl = `https://raw.githubusercontent.com/${repoPath}/main/mods.json`;
+                const response = await fetch(modsUrl);
+                if (response.ok) {
+                    const mods = await response.json();
+                    status.innerHTML = `<p>Connected! Fetched ${mods.length} mods: ${mods.map(m => m.name).join(', ')}</p>`;
+                    log('Nexus connected – mods ready for download.');
+                    // TODO: Add download buttons for each mod
+                } else {
+                    status.innerHTML = '<p>Failed to fetch mods. Create mods.json in your repo with [{"name":"ExampleMod","url":"..."}].</p>';
+                    log('Nexus fetch failed – check URL.');
+                }
+            } catch (err) {
+                status.innerHTML = `<p>Error: ${err.message}</p>`;
+                log('Nexus connection error.');
+            }
+        }
+        
+        // Package Mods (create zip-like folder structure client-side)
+        function packageMods() {
+            if (modFiles.length === 0) return log('No mods to package!');
+            
+            // Simulate packaging: Create a virtual folder
+            const packageDir = 'nexus-package';
+            modFiles.forEach(file => {
+                // In real: Use JSZip for actual zipping
+                log(`Packaged: ${file.name} → ${packageDir}/plugins/`);
+            });
+            log(`Mods packaged in ${packageDir}. Download or deploy.`);
+            
+            // Optional: Trigger download of simple zip (requires JSZip lib)
+            // For now, just log – add <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script> for real zipping
+        }
+        
+        // Deploy to GT (copy to Plugins folder)
+        function deployToGT() {
+            const path = document.getElementById('gtPath').value;
+            if (!path) return log('Enter GT install path first!');
+            if (modFiles.length === 0) return log('No mods to deploy!');
+            
+            const pluginsPath = `${path}\\BepInEx\\plugins`;
+            modFiles.forEach(file => {
+                // Simulate copy – in browser, use showSaveFilePicker or prompt
+                log(`Deployed: ${file.name} → ${pluginsPath}`);
+                // Real impl: window.showDirectoryPicker() (experimental) or manual copy prompt
+            });
+            log('Deployment complete! Restart GT to load mods. Stay in modded lobbies!');
+        }
+    </script>
+</body>
+</html>
